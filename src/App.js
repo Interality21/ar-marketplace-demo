@@ -1,25 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import './App.css'
+import NftsCollection from './NftsCollection'
+import React, { useState } from 'react'
 
-function App() {
+function App () {
+  const [address, setAddress] = useState(window.ethereum.selectedAddress ? window.ethereum.selectedAddress : null)
+  const connectWallet = async () => {
+    await window.ethereum.request({ method: 'eth_requestAccounts' })
+      .then((res) => setAddress(res[0]))
+  }
+  const disconnectWallet = async () => {
+    setAddress(null)
+  }
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+        <header>Interality AR MarketPlace</header>
+        {address ? <button onClick={disconnectWallet}> {address.substring(0, 8) + '...' }</button> : <button onClick={connectWallet}>Connect Wallet</button>}
+        </div>
+      {address && <NftsCollection />}
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

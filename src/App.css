@@ -1,38 +1,62 @@
-.App {
-  text-align: center;
+header {
+    font-size: xx-large;
+    font-weight: bolder;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.nft-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #272932;
+    height: 500px;
+    width: fit-content;
+    padding: 15px;
+    line-height: 25px;
+    border-radius: 25px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.nft-card:hover {
+    background-color: #374281;
+    cursor: pointer;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.df {
+    display: flex;
 }
 
-.App-link {
-  color: #61dafb;
+.row {
+    flex-direction: row;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.modalContainer{
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.model-viewer{
+    z-index: 100;
+    
+}
+
+.full-screen-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.315);
+}
+
+button {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: rgb(105, 105, 202);
+    border: none;
+    cursor: pointer;
 }
