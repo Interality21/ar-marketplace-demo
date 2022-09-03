@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import Web3 from 'web3'
 import { contractAbi, contractAddress } from './nft'
 import "@google/model-viewer/dist/model-viewer";
-
+import { useAccount, useSigner } from "wagmi";
+import {ethers} from 'ethers'
 
 const NftCard = ({ nft, tokenId }) => {
   console.log(nft)
@@ -12,41 +12,43 @@ const NftCard = ({ nft, tokenId }) => {
   const [remainingTokens, setRemainingTokens] = useState(0)
   const [bought,setBought] = useState(false)
   const [showAR,setShowAR] = useState(false)
+  const [contract,setContract] = useState(null)
+  const {address} = useAccount()
 
-  const walletAddress = window.ethereum.selectedAddress
-  const web3 = new Web3(window.ethereum)
-  const contract = new web3.eth.Contract(contractAbi,contractAddress)
+  const { data: signer } = useSigner();
 
   const fetchNftInfo = async () => {
-    console.log('contract',contract)
-    console.log('contract.methods',contract.methods)
-    if(!contract.methods) return
-    const nftInfo = await contract.methods
-      .sale(tokenId)
-      .call()
-      .then(r => r)
+    if(!contract) return
+    const nftInfo = await contract.sale(tokenId)
+    console.log(nftInfo)
 
-    setPrice(Web3.utils.fromWei(nftInfo.price,'ether'))
-    setTotalTokens(nftInfo.totalTokenCount)
-    setRemainingTokens(nftInfo.tokenLeftCount)
+    console.log("price",ethers.utils.formatEther(nftInfo.price))
+    setPrice(ethers.utils.formatEther(nftInfo.price))
+    setTotalTokens(Number(nftInfo.totalTokenCount._hex))
+    setRemainingTokens(Number(nftInfo.tokenLeftCount._hex))
 
-    const balanceOf = await contract.methods
-      .balanceOf(walletAddress,tokenId)
-      .call()
-      .then(r => r)
-    console.log(balanceOf)
-    if(balanceOf > 0){
+    const balanceOf = await contract.balanceOf(address,tokenId)
+    
+    if(Number(balanceOf._hex) > 0){
       setBought(true)
     }
   }
 
   const buyNft = async () => {
-    await contract.methods 
-      .buyNft(tokenId)
-      .send({from: walletAddress, value: Web3.utils.toWei(price,'ether')})
-      .then(res => {
-        console.log(res)
-      })
+    const res = await contract.buyNft(tokenId,{value: ethers.utils.parseEther(price)})
+    const receipt = await res.wait()
+    if(receipt.status === 1){
+      console.log("hash",res.hash)
+      setBought(true)
+    }else{
+      alert()
+    }
+    // await contract.methods 
+    //   .buyNft(tokenId)
+    //   .send({from: walletAddress, value: Web3.utils.toWei(price,'ether')})
+    //   .then(res => {
+    //     console.log(res)
+    //   })
   }
 
   const viewInAR = () => {
@@ -54,8 +56,17 @@ const NftCard = ({ nft, tokenId }) => {
   }
 
   useEffect(() => {
-    fetchNftInfo()
-  }, [])
+    if(signer){
+      const cntrt = new ethers.Contract(contractAddress,contractAbi,signer)
+      setContract(cntrt)
+    }
+  }, [signer])
+
+  useEffect(() => {
+    if(contract){
+      fetchNftInfo()
+    }
+  },[contract])
   return (
     <>
     <div className='nft-card' style={{ fontSize: '20px' }}>
